@@ -22,6 +22,8 @@ LD_SCRIPT   := tm4c.ld
 # FPU Type
 FPU          := hard
 
+OPENOCD_BOARD_DIR=/usr/share/openocd/scripts/board
+
 # Configuration Variables
 ###############################################################################
 
@@ -33,6 +35,7 @@ LD          := $(TOOL)/arm-none-eabi-ld
 AR          := $(TOOL)/arm-none-eabi-ar
 AS          := $(TOOL)/arm-none-eabi-as
 NM          := $(TOOL)/arm-none-eabi-nm
+GDB         := $(TOOL)/arm-none-eabi-gdb
 OBJCOPY     := $(TOOL)/arm-none-eabi-objcopy
 OBJDUMP     := $(TOOL)/arm-none-eabi-objdump
 RANLIB      := $(TOOL)/arm-none-eabi-ranlib
@@ -132,8 +135,12 @@ clean:
 flash: all
 	$(FLASH) bin/$(TARGET).axf;                                              
 
-debug: flash 
-	bash	./.debug
+debug: all 
+	openocd -f ${OPENOCD_BOARD_DIR}/ek-lm4f120xl.cfg 1>/dev/null 2>/dev/null &
+	sleep 2
+	${GDB} --batch --command=.initgdb bin/${TARGET}.out
+	${GDB} bin/${TARGET}.out -ex "target remote localhost:3333" 
+	pkill openocd
 
 uart: flash
 	${UART} /dev/lm4f 115200
