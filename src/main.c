@@ -1,7 +1,12 @@
 #include <stdbool.h>
 #include <stdint.h>
+#include "main.h"
+#include "matrix-driver.h"
 
 int main( void ) {
-  int x = 1;
   __asm("bkpt\n");
-  while(x);}
+  keymatrix_t * to_scan = init_matrix();
+  while(1){
+    scan_matrix(to_scan);
+  }
+}
