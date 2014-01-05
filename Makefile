@@ -59,12 +59,13 @@ CFLAGS     += -mthumb
 CFLAGS     += -mcpu=cortex-m4
 CFLAGS     += -mfloat-abi=$(FPU)
 CFLAGS     += -mfpu=fpv4-sp-d16
-CFLAGS     += -Os
+CFLAGS     += -O3
 CFLAGS     += -ffunction-sections
 CFLAGS     += -fdata-sections
 CFLAGS     += -MD
 CFLAGS     += -std=c99
 CFLAGS     += -Wall
+CFLAGS     += -Werror
 CFLAGS     += -pedantic
 CFLAGS     += -g
 CFLAGS     += -DPART_LM4F120H5QR

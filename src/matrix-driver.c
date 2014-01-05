@@ -1,20 +1,80 @@
 #include "matrix-driver.h"
 #include <stddef.h>
+#include <stdbool.h>
 #include <inc/hw_gpio.h>
+#include <inc/hw_memmap.h>
+#include <driverlib/sysctl.h>
+#include <driverlib/gpio.h>
+
+const unsigned long PIN_PORTS[PORT_COUNT] = {
+  GPIO_PORTA_BASE, GPIO_PORTB_BASE,
+  GPIO_PORTC_BASE, GPIO_PORTD_BASE,
+  GPIO_PORTE_BASE, GPIO_PORTF_BASE,
+};
+
+const unsigned long SYSCTL_PORTS[PORT_COUNT] = {
+  SYSCTL_PERIPH_GPIOA, SYSCTL_PERIPH_GPIOB,
+  SYSCTL_PERIPH_GPIOC, SYSCTL_PERIPH_GPIOD,
+  SYSCTL_PERIPH_GPIOE, SYSCTL_PERIPH_GPIOF,
+};
 
 keymatrix_t matricies[num_matricies];
 uint32_t allocated = 0;
 
-keybits_t scan_matrix(keymatrix_t *to_scan){
-  if (to_scan == (keymatrix_t *) NULL) return (keybits_t) 0;
-  return (keybits_t) 0;
+static inline uint32_t Pin_num(const Pin_t pin) {
+  return 0x1 << (pin & 0x7);}
+
+static inline uint32_t Pin_port(const Pin_t pin) {
+  return PIN_PORTS[pin >> 3];}
+
+char init_pin(Pin_t to_init, char inout){
+  if (to_init >= PIN_COUNT) return true;
+  SysCtlPeripheralEnable(SYSCTL_PORTS[to_init >> 3]);
+  if (inout == true) 
+    GPIOPinTypeGPIOInput(Pin_port(to_init),Pin_num(to_init));
+  else 
+    GPIOPinTypeGPIOOutput(Pin_port(to_init),Pin_num(to_init));
+  GPIOPadConfigSet(Pin_port(to_init), Pin_num(to_init),
+		   GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD);
+  return false;
 }
 
-keymatrix_t* init_matrix(Pin_t *columns, uint32_t num_columns,
-			 Pin_t *rows,    uint32_t num_rows){
+keymatrix_t* init_matrix(const Pin_t *columns, uint32_t num_columns,
+			 const Pin_t *rows,    uint32_t num_rows){
+  uint32_t counter;
   if ((allocated >= num_matricies) ||
       (num_columns == 0 ) ||
       (num_rows == 0))
     return (keymatrix_t *) NULL;
-  else return &(matricies[allocated++]);
+  for( counter = 0; counter < num_columns; ++counter ) {
+    if (init_pin(columns[counter],true) )
+      return (keymatrix_t *) NULL;
+    matricies[allocated].columns[counter] = columns[counter];}
+  for( counter = 0; counter < num_rows; ++counter ) {
+    if (init_pin(rows[counter],false) )
+      return (keymatrix_t *) NULL;
+    matricies[allocated].rows[counter] = rows[counter];}
+  matricies[allocated].num_columns = num_columns;
+  matricies[allocated].num_rows = num_rows;
+  return &(matricies[allocated++]);
+}
+
+static inline void set_pin(Pin_t pin, char value) {
+  GPIOPinWrite(Pin_port(pin), Pin_num(pin), value ? 0xff: 0x00);}
+
+static inline char get_pin(Pin_t pin) {
+  return GPIOPinRead(Pin_port(pin), Pin_num(pin)) ? 0x01 : 0x00;}
+
+/* read key matrix as bits in column major order.
+   keys are read as if they are active high. */
+keybits_t scan_matrix(keymatrix_t *to_scan){
+  uint8_t column, row;
+  keybits_t to_return = 0;
+  if (to_scan == (keymatrix_t *) NULL) return (keybits_t) 0;
+  for (row = 0; row < to_scan->num_rows; ++row) {
+    set_pin(to_scan->rows[row], 1);
+    for (column = 0; column < to_scan->num_columns; ++column)
+      to_return |= get_pin(to_scan->columns[column]) << ((row * (to_scan->num_columns)) + column);
+    set_pin(to_scan->rows[row], 0);}
+  return to_return;
 }
