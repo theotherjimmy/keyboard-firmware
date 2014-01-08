@@ -19,9 +19,9 @@ typedef uint32_t keybits_t ;
 
 typedef struct keymatrix_t{
   uint8_t num_columns;
-  Pin_t columns[5];
+  Pin_t columns[8];
   uint8_t num_rows;
-  Pin_t rows[3];
+  Pin_t rows[8];
 } keymatrix_t;
 /* types */
 
@@ -30,7 +30,7 @@ typedef struct keymatrix_t{
 /* constants */
 
 /* function prototypes */
-keybits_t scan_matrix(keymatrix_t *to_scan);
+keybits_t scan_matrix( const keymatrix_t *to_scan);
 
 keymatrix_t* init_matrix(const Pin_t *columns, uint32_t num_columns,
 			 const Pin_t *rows,    uint32_t num_rows);
