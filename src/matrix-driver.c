@@ -13,7 +13,7 @@ const unsigned long PIN_PORTS[PORT_COUNT] = {
   GPIO_PORTE_BASE, GPIO_PORTF_BASE,
 };
 
-keymatrix_t matricies[num_matricies];
+keymatrix_t matrices[num_matrices];
 uint32_t allocated = 0;
 
 static inline uint32_t Pin_num(const Pin_t pin) {
@@ -36,24 +36,24 @@ char init_pin(Pin_t to_init, char inout){
 keymatrix_t* init_matrix( const Pin_t *columns, uint32_t num_columns,
 			  const Pin_t *rows,    uint32_t num_rows ){
   uint32_t counter;
-  if ( ( allocated >= num_matricies ) ||
+  if ( ( allocated >= num_matrices ) ||
        ( num_columns == 0 ) ||
        ( num_rows == 0 ) )
     return ( keymatrix_t * ) NULL;
   for( counter = 0; counter < 8; ++counter) {
-    matricies[ allocated ].columns[ counter ] = 0;
-    matricies[ allocated ].rows[ counter ] = 0;}
+    matrices[ allocated ].columns[ counter ] = 0;
+    matrices[ allocated ].rows[ counter ] = 0;}
   for( counter = 0; counter < num_columns; ++counter ) {
     if ( init_pin( columns[counter],true ) )
       return ( keymatrix_t * ) NULL;
-    matricies[ allocated ].columns[ counter ] = columns[ counter ];}
+    matrices[ allocated ].columns[ counter ] = columns[ counter ];}
   for( counter = 0; counter < num_rows; ++counter ) {
     if ( init_pin( rows[ counter ],false) )
       return ( keymatrix_t * ) NULL;
-    matricies[ allocated ].rows[ counter ] = rows[ counter ];}
-  matricies[ allocated ].num_columns = num_columns;
-  matricies[ allocated ].num_rows = num_rows;
-  return &(matricies[ allocated++ ]);
+    matrices[ allocated ].rows[ counter ] = rows[ counter ];}
+  matrices[ allocated ].num_columns = num_columns;
+  matrices[ allocated ].num_rows = num_rows;
+  return &(matrices[ allocated++ ]);
 }
 
 static inline void set_pin( Pin_t pin, char value ) {
