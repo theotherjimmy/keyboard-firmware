@@ -12,12 +12,6 @@ const unsigned long PIN_PORTS[PORT_COUNT] = {
   GPIO_PORTE_BASE, GPIO_PORTF_BASE,
 };
 
-const unsigned long SYSCTL_PORTS[PORT_COUNT] = {
-  SYSCTL_PERIPH_GPIOA, SYSCTL_PERIPH_GPIOB,
-  SYSCTL_PERIPH_GPIOC, SYSCTL_PERIPH_GPIOD,
-  SYSCTL_PERIPH_GPIOE, SYSCTL_PERIPH_GPIOF,
-};
-
 keymatrix_t matricies[num_matricies];
 uint32_t allocated = 0;
 
@@ -29,13 +23,12 @@ static inline uint32_t Pin_port(const Pin_t pin) {
 
 char init_pin(Pin_t to_init, char inout){
   if (to_init >= PIN_COUNT) return true;
-  SysCtlPeripheralEnable(SYSCTL_PORTS[to_init >> 3]);
   if (inout == true) 
     GPIOPinTypeGPIOInput(Pin_port(to_init),Pin_num(to_init));
   else 
     GPIOPinTypeGPIOOutput(Pin_port(to_init),Pin_num(to_init));
   GPIOPadConfigSet(Pin_port(to_init), Pin_num(to_init),
-		   GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD);
+		   GPIO_STRENGTH_4MA, GPIO_PIN_TYPE_STD_WPD);
   return false;
 }
 
@@ -63,7 +56,7 @@ static inline void set_pin(Pin_t pin, char value) {
   GPIOPinWrite(Pin_port(pin), Pin_num(pin), value ? 0xff: 0x00);}
 
 static inline char get_pin(Pin_t pin) {
-  return GPIOPinRead(Pin_port(pin), Pin_num(pin)) ? 0x01 : 0x00;}
+  return (GPIOPinRead(Pin_port(pin), Pin_num(pin))) ? 0x01 : 0x00;}
 
 /* read key matrix as bits in column major order.
    keys are read as if they are active high. */

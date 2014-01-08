@@ -26,7 +26,7 @@ typedef struct keymatrix_t{
 /* types */
 
 /* constants */
-#define num_matricies (2)
+#define num_matricies (4)
 /* constants */
 
 /* function prototypes */

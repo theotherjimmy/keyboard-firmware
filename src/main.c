@@ -7,16 +7,25 @@
 #include <driverlib/interrupt.h>
 #include <driverlib/pin_map.h>
 #include <inc/hw_memmap.h>
+#include <inc/hw_gpio.h>
+#include <inc/hw_types.h>
 #include "main.h"
 #include "matrix-driver.h"
 
-static const Pin_t left_rows[5] = {PIN_E3, PIN_B4, PIN_E1, PIN_A5, PIN_A6};
-static const Pin_t left_columns[3] = {PIN_E2, PIN_F1, PIN_A7};
- 
+//                                                         not working   blue
+static const Pin_t left_rows[5] = {PIN_A7, PIN_B4, PIN_A5, PIN_B0, PIN_B1};
+static const Pin_t left_columns[3] = {PIN_A6, PIN_E5, PIN_E4};
+static const Pin_t left_thumb_column = PIN_D1;
+//                                                                              not working blue
+static const Pin_t left_thumb_row[6] = {PIN_D3, PIN_F1, PIN_E3, PIN_E1, PIN_E2, PIN_D0};
+//                                                          not working   blue
+static const Pin_t right_rows[5] = {PIN_A2, PIN_A4, PIN_B6, PIN_E0, PIN_B2};
+static const Pin_t right_columns[3] = {PIN_A3, PIN_F0, PIN_B7};
+static const Pin_t right_thumb_column = PIN_C4;
+//                                                                               not working blue
+static const Pin_t right_thumb_row[6] = {PIN_C6, PIN_D7, PIN_F4, PIN_D6, PIN_C7, PIN_B3};
 
-int main( void ) {
-  keymatrix_t * to_scan_left = init_matrix(&left_columns[0], 3, &left_rows[0], 5);
-  keymatrix_t * to_scan_right = init_matrix((const Pin_t *) 0, 0, (const Pin_t *) 0, 0);
+int init_hw (void) {
   // Clock (80 MHz)
   SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN);
   // UART
@@ -24,11 +33,40 @@ int main( void ) {
   SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
   GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
   UARTConfigSetExpClk(UART0_BASE, SysCtlClockGet(), 115200, (UART_CONFIG_PAR_NONE | UART_CONFIG_STOP_ONE | UART_CONFIG_WLEN_8));
-  
   UARTEnable(UART0_BASE);
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+
+  // Special workarounds for PF0 and PD7
+  // For more info lookup NMI mux issue on the LM4F
+  HWREG(GPIO_PORTD_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY;
+  HWREG(GPIO_PORTD_BASE + GPIO_O_CR) = 0xff;
+  HWREG(GPIO_PORTD_BASE + GPIO_O_LOCK) = 0;
+  HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY;
+  HWREG(GPIO_PORTF_BASE + GPIO_O_CR) = 0xff;
+  HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = 0;
   IntMasterEnable();
+  return 0;
+}
+
+int main( void ) {
+  keymatrix_t * to_scan_left = NULL;
+  keymatrix_t * to_scan_right = NULL;
+  keymatrix_t * to_scan_thumb_left = NULL;
+  keymatrix_t * to_scan_thumb_right = NULL;
+  init_hw();
+  to_scan_left = init_matrix(&left_columns[0], 3, &left_rows[0], 5);
+  to_scan_right = init_matrix(&right_columns[0], 3, &right_rows[0], 5);              
+  to_scan_thumb_left = init_matrix(&left_thumb_row[0], 6, &left_thumb_column, 1);
+  to_scan_thumb_right = init_matrix(&right_thumb_row[0], 6, &right_thumb_column, 1);
   while(1){
-    printf("left:%05o right:%05o\r\n",(unsigned int) scan_matrix(to_scan_left),
+    printf("fingers= left:%05o right:%05o ",(unsigned int) scan_matrix(to_scan_left),
 	   (unsigned int) scan_matrix(to_scan_right));
+    printf("thumbs= left:%02o right:%02o\r\n",(unsigned int) scan_matrix(to_scan_thumb_left),
+	   (unsigned int) scan_matrix(to_scan_thumb_right));
   }
 }
