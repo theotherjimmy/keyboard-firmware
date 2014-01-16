@@ -15,6 +15,7 @@ extern unsigned long _stack_bottom;
 extern unsigned long _stack_top;
 extern unsigned long _heap_bottom;
 extern unsigned long _heap_top;
+extern void USB0DeviceIntHandler(void);
 
 __attribute__ ((section(".isr_vector")))
 void (* const g_pfnVectors[])(void) =
@@ -79,7 +80,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // CAN2
     0,                                      // Reserved
     IntDefaultHandler,                      // Hibernate
-    IntDefaultHandler,                   // USB0
+    USB0DeviceIntHandler,                   // USB0
     IntDefaultHandler,                      // PWM Generator 3
     IntDefaultHandler,                      // uDMA Software Transfer
     IntDefaultHandler,                      // uDMA Error
