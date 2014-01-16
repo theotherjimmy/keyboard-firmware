@@ -59,13 +59,14 @@ CFLAGS     += -mthumb
 CFLAGS     += -mcpu=cortex-m4
 CFLAGS     += -mfloat-abi=$(FPU)
 CFLAGS     += -mfpu=fpv4-sp-d16
-CFLAGS     += -O3
+CFLAGS     += -O0
 CFLAGS     += -ffunction-sections
 CFLAGS     += -fdata-sections
 CFLAGS     += -MD
-CFLAGS     += -std=c99
+CFLAGS     += -std=gnu99
 CFLAGS     += -Wall
 CFLAGS     += -Werror
+CFLAGS     += -Wno-deprecated-declarations
 CFLAGS     += -pedantic
 CFLAGS     += -g
 CFLAGS     += -DPART_LM4F120H5QR
@@ -88,7 +89,7 @@ LDFLAGS	   += -L ${TW_DIR}/lib/gcc/arm-none-eabi/4.5.2/
 LDFLAGS    += -L ${TOOL}/../arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpuv4-sp-d16/
 
 LDFLAGS    += --entry ResetISR
-LDFLAGS    += --gc-sections
+#LDFLAGS    += --gc-sections
 LDFLAGS    += -nostdlib
 # Flag Definitions
 ###############################################################################
