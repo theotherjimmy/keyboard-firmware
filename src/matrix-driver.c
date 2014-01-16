@@ -7,7 +7,7 @@
 #include <driverlib/sysctl.h>
 #include <driverlib/gpio.h>
 
-const unsigned long PIN_PORTS[PORT_COUNT] = {
+const uint32_t PIN_PORTS[PORT_COUNT] = {
   GPIO_PORTA_BASE, GPIO_PORTB_BASE,
   GPIO_PORTC_BASE, GPIO_PORTD_BASE,
   GPIO_PORTE_BASE, GPIO_PORTF_BASE,
@@ -24,14 +24,17 @@ static inline uint32_t Pin_port(const Pin_t pin) {
 
 char init_pin(Pin_t to_init, char inout){
   if ( to_init >= PIN_COUNT ) return true;
-  if ( inout == true ) 
+  if ( inout == true ) {
     GPIOPinTypeGPIOInput( Pin_port( to_init ), Pin_num( to_init ) );
-  else 
+    GPIOPadConfigSet( Pin_port( to_init ), Pin_num( to_init ),
+		      GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD );}
+  else {
     GPIOPinTypeGPIOOutput( Pin_port( to_init ), Pin_num( to_init ) );
-  GPIOPadConfigSet( Pin_port( to_init ), Pin_num( to_init ),
-		    GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD );
+    GPIOPadConfigSet( Pin_port( to_init ), Pin_num( to_init ),
+		      GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD );}
   return false;
 }
+
 
 keymatrix_t* init_matrix( const Pin_t *columns, uint32_t num_columns,
 			  const Pin_t *rows,    uint32_t num_rows ){
@@ -62,7 +65,7 @@ static inline void set_pin( Pin_t pin, char value ) {
 static inline char get_pin( Pin_t pin ) {
   return ( GPIOPinRead( Pin_port( pin ), Pin_num( pin ) ) ) ? 0x01 : 0x00;}
 
-/* read key matrix as bits in column major order.
+/* read key matrix as bits in row major order.
    keys are read as if they are active high. */
 keybits_t scan_matrix( const keymatrix_t *to_scan ){
   uint8_t column, row;
@@ -72,7 +75,7 @@ keybits_t scan_matrix( const keymatrix_t *to_scan ){
     set_pin( to_scan->rows[ row ], 1 );
     for( column = 0; column < to_scan->num_columns; ++column ) {
       to_return |= get_pin( to_scan->columns[ column ] ) <<
-	           ( ( row * ( to_scan->num_columns ) ) + column );}
+	           ( ( column * ( to_scan->num_rows ) ) + row );}
     set_pin( to_scan->rows[ row ], 0 );}
   return to_return;
 }
