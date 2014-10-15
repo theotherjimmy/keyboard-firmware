@@ -184,20 +184,18 @@ void ResetISR(void)
 
     //Copy the data segment initializers from flash to SRAM.
     pulSrc = &_etext;
-    for(pulDest = &_data; pulDest < &_edata; ){
-        *pulDest++ = *pulSrc++;
+    pulDest = &_data;
+    while(pulDest < &_edata) {
+      __asm("");
+      *pulDest++ = *pulSrc++;
     }
 
-    // Zero fill the bss segment.
-    __asm("    ldr     r0, =_bss\n"
-          "    ldr     r1, =_ebss\n"
-          "    mov     r2, #0\n"
-          "    .thumb_func\n"
-          "zero_loop:\n"
-          "        cmp     r0, r1\n"
-          "        it      lt\n"
-          "        strlt   r2, [r0], #4\n"
-          "        blt     zero_loop");
+    pulSrc = &_bss;
+    while (pulSrc < &_ebss) {
+      __asm("");
+      *pulSrc++ = 0;
+    }
+
 
     main();
 }
