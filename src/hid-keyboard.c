@@ -229,10 +229,6 @@ typedef struct  {
   // the following two components are needed by usblib
   tHIDReportIdle ReportIdle;
   tUSBDHIDDevice HIDDevice;
-  keymatrix_t * to_scan_left;
-  keymatrix_t * to_scan_right;
-  keymatrix_t * to_scan_thumb_left;
-  keymatrix_t * to_scan_thumb_right;
 } USBHIDKeyboardDevice_t;
   
 USBHIDKeyboardDevice_t Device;
@@ -274,9 +270,34 @@ static uint32_t HIDKeyoardRxHandler (void *KeyboardDevice, uint32_t Event, uint3
 static uint32_t HIDKeyoardTxHandler (void *KeyboardDevice, uint32_t Event, uint32_t MsgValue, void * MsgData) {
   return 0;
 }
-  
-bool USBDHIDKeyboardInit(uint32_t index, keymatrix_t * to_scan_left, keymatrix_t * to_scan_right,
-			 keymatrix_t * to_scan_thumb_left, keymatrix_t * to_scan_thumb_right) {
+
+bool SendButtons ( void ) {
+  uint32_t count;
+  if(USBDHIDTxPacketAvailable((void *)&Device.HIDDevice))
+    {
+      //
+      // Send the report to the host.
+      //
+      count = USBDHIDReportWrite((void *)&Device.HIDDevice,
+				 (uint8_t *)GetCurrentReport(),
+				 sizeof( inputReport_t ) / sizeof( uint8_t ),
+				 true);
+      
+      //
+      // Did we schedule a packet for transmission correctly?
+      //
+      if(count <= 0)
+        {
+	  //
+	  // No - report the error to the caller.
+	  //
+	  return false;
+        }
+      else return true;
+    }
+  return false ;
+}
+bool USBDHIDKeyboardInit(uint32_t index) {
   tUSBDHIDDevice *HIDDevice;
   bool compRet, initRet;
   initReportGernerator( );
@@ -299,10 +320,6 @@ bool USBDHIDKeyboardInit(uint32_t index, keymatrix_t * to_scan_left, keymatrix_t
   HIDDevice->ppsConfigDescriptor = HIDConfigDescriptors;
   HIDDevice->psReportIdle = &Device.ReportIdle;
   Device.ReportIdle.ui8Duration4mS = 125;
-  Device.to_scan_left = to_scan_left;
-  Device.to_scan_right = to_scan_right;
-  Device.to_scan_thumb_left = to_scan_thumb_left;
-  Device.to_scan_thumb_right = to_scan_thumb_right;
   compRet = USBDHIDCompositeInit( index, HIDDevice, 0 );
   initRet = USBDHIDInit( index, HIDDevice );
   return compRet && initRet;
