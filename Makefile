@@ -86,7 +86,7 @@ LDFLAGS    += -g
 
 LDFLAGS	   += -L ${TW_DIR}/lib/gcc/arm-none-eabi/4.5.2/
 
-LDFLAGS    += -L ${TOOL}/../arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpuv4-sp-d16/
+LDFLAGS    += $(addprefix -L , $(shell ${CC} ${CFLAGS} -print-search-dirs | grep libraries | sed -e 's/libraries:\ =//' -e 's/:/ /g'))
 
 LDFLAGS    += --entry ResetISR
 #LDFLAGS    += --gc-sections
