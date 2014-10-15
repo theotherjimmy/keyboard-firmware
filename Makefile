@@ -119,7 +119,7 @@ bin/%.s: src/%.c
 	$(CC) -S $(CFLAGS) -o $@ $< -MT ${@:.s=.o} -MT $@
 
 # Linker Command
-bin/$(TARGET).out: $(OBJECTS)
+bin/$(TARGET).out: $(OBJECTS) tm4c.ld
 	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(patsubst %,-l%, ${LIBS})
 
 # Create the Final Image
