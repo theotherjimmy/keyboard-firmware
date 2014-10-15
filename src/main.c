@@ -1,6 +1,5 @@
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <driverlib/sysctl.h>
 #include <driverlib/uart.h>
 #include <driverlib/gpio.h>
@@ -39,7 +38,10 @@ int main( void ) {
   to_scan_thumb_right = init_matrix( &right_thumb_row[0], 6, &right_thumb_column[0], 1 );
   USBDHIDKeyboardInit(0);
   while( 1 ){
-    SysCtlDelay(1000000);
+    SysCtlDelay(100000);
+    ScanCodesToReport( scan_matrix(to_scan_left), scan_matrix(to_scan_thumb_left),
+		       scan_matrix(to_scan_right), scan_matrix(to_scan_thumb_right));
+    while (!SendButtons()) ;
   }
 }
 
