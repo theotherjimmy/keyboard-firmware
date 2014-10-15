@@ -78,13 +78,13 @@ CFLAGS     += -I$(TW_DIR)/include -I$(INCLUDES)
 LIBS	   += usb
 LIBS       += driver
 LIBS	   += m
-LIBS	   += c
 LIBS	   += gcc
 
 LDFLAGS    += -T $(LD_SCRIPT)
 LDFLAGS    += -g
 
-LDFLAGS	   += -L ${TW_DIR}/lib/gcc/arm-none-eabi/4.5.2/
+LDFLAGS	   += -L ${TW_DIR}/driverlib/gcc
+LDFLAGS	   += -L ${TW_DIR}/usblib/gcc
 
 LDFLAGS    += $(addprefix -L , $(shell ${CC} ${CFLAGS} -print-search-dirs | grep libraries | sed -e 's/libraries:\ =//' -e 's/:/ /g'))
 
