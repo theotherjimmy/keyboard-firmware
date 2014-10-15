@@ -14,13 +14,13 @@ INCLUDES    := inc
 TOOL        := $(shell dirname `which arm-none-eabi-gcc`)
 
 # Path to the root of your StellarisWare folder
-TW_DIR      := /opt/arm-2011.03
+TW_DIR      := $(HOME)/src/TivaWare
 
 # Location of a linker script, doesnt matter which one, they're the same
 LD_SCRIPT   := tm4c.ld
 
 # FPU Type
-FPU          := hard
+FPU          := softfp
 
 OPENOCD_BOARD_DIR=/usr/share/openocd/scripts/board
 
@@ -73,7 +73,7 @@ CFLAGS     += -DPART_LM4F120H5QR
 CFLAGS     += -Dgcc
 CFLAGS     += -DTARGET_IS_BLIZZARD_RA1
 CFLAGS     += -fsingle-precision-constant
-CFLAGS     += -I$(TW_DIR)/include -I$(INCLUDES)
+CFLAGS     += -I$(TW_DIR) -I$(INCLUDES)
 
 LIBS	   += usb
 LIBS       += driver
@@ -89,12 +89,11 @@ LDFLAGS	   += -L ${TW_DIR}/usblib/gcc
 LDFLAGS    += $(addprefix -L , $(shell ${CC} ${CFLAGS} -print-search-dirs | grep libraries | sed -e 's/libraries:\ =//' -e 's/:/ /g'))
 
 LDFLAGS    += --entry ResetISR
-#LDFLAGS    += --gc-sections
+LDFLAGS    += --gc-sections
 LDFLAGS    += -nostdlib
 # Flag Definitions
 ###############################################################################
 
--include ${OBJECTS:.o=.d}
 
 # Create the Directories we need
 $(eval $(shell	$(MKDIR) bin))
@@ -103,10 +102,12 @@ $(eval $(shell	$(MKDIR) bin))
 OBJECTS    := $(patsubst src/%.o, bin/%.o, $(SOURCES:.c=.o))
 ASMS       := $(patsubst src/%.s, bin/%.s, $(SOURCES:.c=.s))
 
+-include ${OBJECTS:.o=.d}
+
 ###############################################################################
 # Command Definitions, Leave it alone unless you hate yourself.
 
-all: bin/$(TARGET).axf size
+all: bin/$(TARGET).axf
 
 asm: $(ASMS)
 
@@ -142,7 +143,7 @@ debug: all
 	sleep 2
 	${GDB} --batch --command=.initgdb bin/${TARGET}.out
 	${GDB} bin/${TARGET}.out -ex "target remote localhost:3333" 
-	pkill openocd
+	killall openocd
 
 uart: flash
 	${UART} /dev/lm4f 115200
