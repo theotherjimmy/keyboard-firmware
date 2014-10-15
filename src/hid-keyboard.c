@@ -242,40 +242,31 @@ static uint32_t HIDKeyoardRxHandler (void *KeyboardDevice, uint32_t Event, uint3
   switch (Event) {
   case USB_EVENT_CONNECTED: {
     ((USBHIDKeyboardDevice_t *)KeyboardDevice)->USBConfigured = true;
-    printf("connected\r\n");
     break; }
   case USB_EVENT_DISCONNECTED: {
     ((USBHIDKeyboardDevice_t *)KeyboardDevice)->USBConfigured = false;
-    printf("disconnected\r\n");
     break; }
   case USBD_HID_EVENT_GET_REPORT: 
   case USBD_HID_EVENT_IDLE_TIMEOUT: {
-    inputReport_t * report;
-    int i;
-    USBHIDKeyboardDevice_t * Device = (USBHIDKeyboardDevice_t *) KeyboardDevice;
-    report  = ScanCodesToReport( scan_matrix( Device->to_scan_left ),
-						    scan_matrix( Device->to_scan_thumb_left ),
-						    scan_matrix( Device->to_scan_right ),
-						    scan_matrix( Device->to_scan_thumb_left ) );
-    *(inputReport_t **)MsgData = report;
-    printf( "HID Report =" );
-    for( i = sizeof( inputReport_t ) ; i > 0; --i) {
-      if (i < sizeof( inputReport_t ) ) printf( ":" );
-      printf( "%02X",( ( uint8_t * )report )[ i - 1 ] ); }
-    printf( "\r\n" );
-    return sizeof( inputReport_t );
+    *(inputReport_t **)MsgData = GetCurrentReport();
+    return sizeof( inputReport_t ) / sizeof( uint8_t );
   }
   case USBD_HID_EVENT_GET_REPORT_BUFFER: { return 0; }
     // we only support the report protocol. Therefore, if asked, we are currently using the report protocol
   case USBD_HID_EVENT_GET_PROTOCOL: { return USB_HID_PROTOCOL_REPORT; }
     // cannot happen, we do not define any input reports, and we stall all attepmts to recieve them.
-  case USBD_HID_EVENT_REPORT_SENT: { printf( "report sent \r\n" );  break; }
+  case USBD_HID_EVENT_REPORT_SENT:  { 
+    return 0; }
+  case USB_EVENT_SUSPEND: {
+    set_pin(PIN_F2, true);
+    break; }
+  case USB_EVENT_ERROR:  
   case USBD_HID_EVENT_SET_REPORT: 
   case USBD_HID_EVENT_SET_PROTOCOL: 
-  case USB_EVENT_ERROR:{ printf( "error \r\n" ); break; }
-  case USB_EVENT_SUSPEND:{ printf( "suspend \r\n" ); break; }
-  case USB_EVENT_RESUME:{ printf( "resume \r\n" ); break; }
-  default : { break; }
+  case USB_EVENT_RESUME:
+  default : {
+    set_pin(PIN_F3, true);
+    break; }
   }
   return 0;
 }

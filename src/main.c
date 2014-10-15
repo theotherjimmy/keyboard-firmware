@@ -47,13 +47,7 @@ int main( void ) {
 int init_hw( void ) {
   // Clock (80 MHz)
   SysCtlClockSet( SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_XTAL_16MHZ | SYSCTL_OSC_MAIN );
-  // UART
-  SysCtlPeripheralEnable( SYSCTL_PERIPH_GPIOA );
-  SysCtlPeripheralEnable( SYSCTL_PERIPH_UART0 );
-  GPIOPinTypeUART( GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1 );
-  UARTConfigSetExpClk( UART0_BASE, SysCtlClockGet( ), 115200,
-		       ( UART_CONFIG_PAR_NONE | UART_CONFIG_STOP_ONE | UART_CONFIG_WLEN_8 ) );
-  UARTEnable( UART0_BASE );
+
   SysCtlPeripheralEnable( SYSCTL_PERIPH_GPIOA );
   SysCtlPeripheralEnable( SYSCTL_PERIPH_GPIOB );
   SysCtlPeripheralEnable( SYSCTL_PERIPH_GPIOC );
