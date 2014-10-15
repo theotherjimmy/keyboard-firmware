@@ -233,8 +233,10 @@ typedef struct  {
   
 USBHIDKeyboardDevice_t Device;
 
-static uint32_t HIDKeyoardRxHandler (void *KeyboardDevice, uint32_t Event, uint32_t MsgValue, void * MsgData) {
-  printf("USB event: %x\r\n", (int) Event);
+static uint8_t buff[1 << 5];
+
+static uint32_t HIDKeyoardRxHandler (void *KeyboardDevice, uint32_t Event,
+				     uint32_t MsgValue, void * MsgData) {
   switch (Event) {
   case USB_EVENT_CONNECTED: {
     ((USBHIDKeyboardDevice_t *)KeyboardDevice)->USBConfigured = true;
