@@ -17,21 +17,29 @@ SECTIONS
         _etext = .;
     } > FLASH
 
-    .data : AT(ADDR(.text) + SIZEOF(.text))
+    .other : AT(_etext)
+    {
+	_exidx = .;
+	*(.ARM.exidx*)
+	_eexidx = .;
+    } > FLASH
+
+    .bss : AT(ORIGIN(SRAM))
+    {
+        _bss = .;
+        *(COMMON)
+        *(.bss*)
+        _ebss = .;
+    } > SRAM
+
+    .data : AT(_eexidx)
     {
         _data = .;
         *(vtable)
         *(.data*)
         _edata = .;
     } > SRAM
-
-    .bss : AT(ADDR(.data) + SIZEOF(.data))
-    {
-        _bss = .;
-        *(.bss*)
-        *(COMMON)
-        _ebss = .;
-    } > SRAM
+    
 
     _heap_bottom = .;
     _heap_top = ORIGIN(SRAM) + LENGTH(SRAM) - _stack_size;
