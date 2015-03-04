@@ -249,7 +249,11 @@ static uint32_t HIDKeyoardRxHandler (void *KeyboardDevice, uint32_t Event,
     *(inputReport_t **)MsgData = GetCurrentReport();
     return sizeof( inputReport_t ) / sizeof( uint8_t );
   }
-  case USBD_HID_EVENT_GET_REPORT_BUFFER: { return 0; }
+  case USBD_HID_EVENT_GET_REPORT_BUFFER: {
+    if  ((uint32_t)MsgData < 1 << 5)
+      return (uint32_t) &buff[0];
+    else
+      return 0; }
     // we only support the report protocol. Therefore, if asked, we are currently using the report protocol
   case USBD_HID_EVENT_GET_PROTOCOL: { return USB_HID_PROTOCOL_REPORT; }
     // cannot happen, we do not define any input reports, and we stall all attepmts to recieve them.
