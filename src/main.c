@@ -14,15 +14,15 @@
 #include "hid-report-generator.h"
 #include "hid-keyboard.h"
 
-static const Pin_t left_rows[5] = {PIN_C6, PIN_C7, PIN_D6, PIN_D7, PIN_F4};
+static const Pin_t left_rows[5] = {PIN_C6, PIN_C7, PIN_D6, PIN_B5, PIN_F4};
 static const Pin_t left_columns[3] = {PIN_C5, PIN_C4, PIN_B3};
 static const Pin_t left_thumb_column[1] = {PIN_A2};
-static const Pin_t left_thumb_row[6] = {PIN_A3, PIN_A4, PIN_B6, PIN_B7, PIN_F0, PIN_E0};
+static const Pin_t left_thumb_row[6] = {PIN_E0, PIN_F0, PIN_B7, PIN_B6, PIN_A4, PIN_A3};
 
 static const Pin_t right_rows[5] = {PIN_F1, PIN_E3, PIN_E2, PIN_E1, PIN_D3};
 static const Pin_t right_columns[3] = {PIN_D2, PIN_D1, PIN_D0};
 static const Pin_t right_thumb_column[1] = {PIN_A7};
-static const Pin_t right_thumb_row[6] = {PIN_A6, PIN_A5, PIN_B4, PIN_E5, PIN_E4, PIN_B1};
+static const Pin_t right_thumb_row[6] = {PIN_B1, PIN_E4, PIN_E5, PIN_B4, PIN_A5, PIN_A6};
 
 int init_hw( void );
 
@@ -38,10 +38,9 @@ int main( void ) {
   to_scan_thumb_right = init_matrix( &right_thumb_row[0], 6, &right_thumb_column[0], 1 );
   USBDHIDKeyboardInit(0);
   while( 1 ){
-    SysCtlDelay(100000);
     ScanCodesToReport( scan_matrix(to_scan_left), scan_matrix(to_scan_thumb_left),
 		       scan_matrix(to_scan_right), scan_matrix(to_scan_thumb_right));
-    while (!SendButtons()) ;
+    while (!SendButtons()) SysCtlDelay(100000);
   }
 }
 
