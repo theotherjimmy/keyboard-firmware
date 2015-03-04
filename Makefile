@@ -1,28 +1,33 @@
-###############################################################################
+##############################################################################
 # Configuration Variables
 
 #Taget Binary Name
-TARGET      := kbd-driver
+TARGET        ?= keyboard-firmware
 
-# List all the source files here
-SOURCES     := $(wildcard src/*.c)
+# List all the source files here, or rely on the wildcard
+C_SOURCES     ?= $(wildcard src/*.c)
+AS_SOURCES    ?= $(wildcard src/*.as)
 
-# Includes are located in the Include directory
-INCLUDES    := inc
+# Location of local '*.h' files
+INCLUDES      ?= inc
 
 # Path to the root of your ARM toolchain
-TOOL        := $(shell dirname `which arm-none-eabi-gcc`)
+TOOL          ?= $(shell dirname `which arm-none-eabi-gcc`)
 
-# Path to the root of your StellarisWare folder
-TW_DIR      := $(HOME)/src/TivaWare
+# Path to the root of your (Stellaris|Tiva)Ware folder
+TW_DIR        ?= $(HOME)/src/TivaWare
 
-# Location of a linker script, doesnt matter which one, they're the same
-LD_SCRIPT   := tm4c.ld
+# Part Number
+Part_Number   ?= LM4F120H5QR
+
+# Location of a linker script
+LD_SCRIPT     ?= tm4c.ld
 
 # FPU Type
-FPU          := softfp
+FPU           ?= softfp
 
-OPENOCD_BOARD_DIR=/usr/share/openocd/scripts/board
+#Debug Makefile mode
+Debug         ?= @
 
 # Configuration Variables
 ###############################################################################
@@ -30,6 +35,7 @@ OPENOCD_BOARD_DIR=/usr/share/openocd/scripts/board
 
 ###############################################################################
 # Tool Definitions
+
 CC          := $(TOOL)/arm-none-eabi-gcc
 LD          := $(TOOL)/arm-none-eabi-ld
 AR          := $(TOOL)/arm-none-eabi-ar
@@ -43,44 +49,50 @@ STRIP       := $(TOOL)/arm-none-eabi-strip
 SIZE        := $(TOOL)/arm-none-eabi-size
 READELF     := $(TOOL)/arm-none-eabi-readelf
 DEBUG       := $(TOOL)/arm-none-eabi-gdb
-FLASH       := $(shell which lm4flash)
 CP          := cp -p
 RM          := rm -rf
 MV          := mv
 MKDIR       := mkdir -p
 UART	    := screen
+
 # Tool Definitions
 ###############################################################################
 
 
 ###############################################################################
 # Flag Definitions
-CFLAGS     += -mthumb
-CFLAGS     += -mcpu=cortex-m4
-CFLAGS     += -mfloat-abi=$(FPU)
-CFLAGS     += -mfpu=fpv4-sp-d16
-CFLAGS     += -O0
-CFLAGS     += -ffunction-sections
-CFLAGS     += -fdata-sections
+
+# both C and ASM flags
+FLAGS      += -mthumb
+FLAGS      += -mcpu=cortex-m4
+FLAGS      += -mfloat-abi=$(FPU)
+FLAGS      += -mfpu=fpv4-sp-d16
+
+AFLAGS     += ${FLAGS}
+CFLAGS     += ${FLAGS}
+
+# C only Flags
 CFLAGS     += -MD
-CFLAGS     += -std=gnu99
 CFLAGS     += -Wall
 CFLAGS     += -Werror
 CFLAGS     += -Wno-deprecated-declarations
 CFLAGS     += -pedantic
-CFLAGS     += -g
-CFLAGS     += -DPART_LM4F120H5QR
+CFLAGS     += -DPART_${Part_Number}
 CFLAGS     += -Dgcc
 CFLAGS     += -DTARGET_IS_BLIZZARD_RA1
+CFLAGS     += -std=gnu99
+CFLAGS     += -g
+CFLAGS     += -ffunction-sections
+CFLAGS     += -fdata-sections
 CFLAGS     += -fsingle-precision-constant
 CFLAGS     += -I$(TW_DIR) -I$(INCLUDES)
+CFLAGS     += -O3
 
 LIBS	   += usb
 LIBS       += driver
 LIBS	   += m
 LIBS	   += gcc
 
-LDFLAGS    += -T $(LD_SCRIPT)
 LDFLAGS    += -g
 
 LDFLAGS	   += -L ${TW_DIR}/driverlib/gcc
@@ -95,58 +107,71 @@ LDFLAGS    += -nostdlib
 ###############################################################################
 
 
+###############################################################################
+# Boilerplate
+
 # Create the Directories we need
 $(eval $(shell	$(MKDIR) bin))
 
 # Object File Directory, keeps things tidy
-OBJECTS    := $(patsubst src/%.o, bin/%.o, $(SOURCES:.c=.o))
-ASMS       := $(patsubst src/%.s, bin/%.s, $(SOURCES:.c=.s))
+OBJECTS    := $(patsubst src/%.c, bin/%.o, $(C_SOURCES))
+OBJECTS    += $(patsubst src/%.as, bin/%.o, $(AS_SOURCES))
+ASMS       := $(patsubst src/%.c, bin/%.s, $(C_SOURCES))
 
+# Include dependency info, if we have it
 -include ${OBJECTS:.o=.d}
 
+# Boilerplate
 ###############################################################################
-# Command Definitions, Leave it alone unless you hate yourself.
 
-all: bin/$(TARGET).axf
+
+###############################################################################
+# Command Definitions, Dragons Ahead
+
+all: bin/$(TARGET).out
 
 asm: $(ASMS)
 
 # Compiler Command
 bin/%.o: src/%.c
-	$(CC) -c $(CFLAGS) -o $@ $< -MT $@ -MT ${@:.o=.s}
+	${Debug}echo CC: $<
+	${Debug}$(CC) -c $(CFLAGS) -o $@ $< -MT $@ -MT ${@:.o=.s}
+
+# Assember Command
+bin/%.o: src/%.as
+	${Debug}echo AS: $<
+	${Debug}$(AS) -c $(AFLAGS) -o $@ $< 
 
 # Create Assembly
 bin/%.s: src/%.c
-	$(CC) -S $(CFLAGS) -o $@ $< -MT ${@:.s=.o} -MT $@
+	${Debug}echo C "->" AS: $<
+	${Debug}$(CC) -S $(CFLAGS) -o $@ $< -MT ${@:.s=.o} -MT $@
 
 # Linker Command
-bin/$(TARGET).out: $(OBJECTS) tm4c.ld
-	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(patsubst %,-l%, ${LIBS})
+bin/$(TARGET).out: $(OBJECTS) ${LD_SCRIPT}
+	${Debug}echo LD: $^
+	${Debug}$(LD) $(LDFLAGS) -T $(LD_SCRIPT) -o $@ $(OBJECTS) $(patsubst %,-l%, ${LIBS})
 
-# Create the Final Image
-bin/$(TARGET).axf: bin/$(TARGET).out
-	$(OBJCOPY) -O binary bin/$(TARGET).out bin/$(TARGET).axf
-
-
-# Calculate the Size of the Image
 size: bin/$(TARGET).out
-	$(SIZE) $<
+	${Debug}$(SIZE) $<
 
 clean:
-	$(RM) bin
+	${Debug}$(RM) bin
 
-flash: all
-	$(FLASH) bin/$(TARGET).axf;                                              
+.gdb-script: 
+	${Debug}echo "target remote | openocd -c \"source [find board/ek-lm4f120xl.cfg]\" -c \"gdb_port pipe; log_output openocd.log\""> $@
+	${Debug}echo "monitor reset halt" >> $@
+	${Debug}echo "load" >> $@
+	${Debug}echo "monitor reset halt" >> $@
 
-debug: all 
-	openocd -f ${OPENOCD_BOARD_DIR}/ek-lm4f120xl.cfg 1>/dev/null 2>/dev/null &
-	sleep 2
-	${GDB} --batch --command=.initgdb bin/${TARGET}.out
-	${GDB} bin/${TARGET}.out -ex "target remote localhost:3333" 
-	killall openocd
+debug: bin/${TARGET}.out .gdb-script
+	${Debug}${GDB} $< -x .gdb-script ${GDBFLAGS}
+
+flash: debug
+flash: GDBFLAGS += -batch
 
 uart: flash
-	${UART} /dev/lm4f 115200
+	${Debug}${UART} /dev/lm4f 115200
 
-# Command Definitions, Leave it alone unless you hate yourself.
+# Command Definitions, Dragons Ahead
 ###############################################################################
