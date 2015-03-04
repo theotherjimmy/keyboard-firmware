@@ -56,10 +56,12 @@ keymatrix_t* init_matrix( const Pin_t *columns, uint32_t num_columns,
     matrices[ allocated ].rows[ counter ] = rows[ counter ];}
   matrices[ allocated ].num_columns = num_columns;
   matrices[ allocated ].num_rows = num_rows;
+  init_pin(PIN_F2,false);
+  init_pin(PIN_F3,false);
   return &(matrices[ allocated++ ]);
 }
 
-static inline void set_pin( Pin_t pin, char value ) {
+void set_pin( Pin_t pin, char value ) {
   GPIOPinWrite( Pin_port( pin ), Pin_num( pin ), value ? 0xff: 0x00 );}
 
 static inline char get_pin( Pin_t pin ) {

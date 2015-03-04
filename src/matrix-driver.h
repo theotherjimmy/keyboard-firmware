@@ -34,6 +34,8 @@ keybits_t scan_matrix( const keymatrix_t *to_scan);
 
 keymatrix_t* init_matrix(const Pin_t *columns, uint32_t num_columns,
 			 const Pin_t *rows,    uint32_t num_rows);
+
+void set_pin( Pin_t pin, char value ) ;
 /* function prototypes */
 
 #endif
