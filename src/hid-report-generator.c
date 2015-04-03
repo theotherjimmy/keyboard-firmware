@@ -36,10 +36,9 @@ inputReport_t * ScanCodesToReport ( uint32_t leftFingers,  uint32_t leftThumbs,
   uint32_t matrices[4] = {leftFingers, leftThumbs, rightFingers, rightThumbs};
   uint32_t matricesDelta[4] = {0, 0, 0, 0};
   inputReport_t *nextReport = &reportBuffer[(currentReport + 1) % NumReports];
-  inputReport_t *currReport = GetCurrentReport( );
   // copy over old report to make changes
   for( byteCounter = 0; byteCounter < BytesPerReport; ++byteCounter )
-    ( ( uint8_t *) nextReport)[ byteCounter ] = ( (uint8_t *) currReport)[ byteCounter ];
+    ( ( uint8_t *) nextReport)[ byteCounter ] = 0;
   // generate the keys that have changed
   for( byteCounter = 0; byteCounter < 4; ++byteCounter)
     matricesDelta[ byteCounter ] = matrices[ byteCounter ] ^ oldMatrices[ byteCounter];
@@ -68,14 +67,16 @@ inputReport_t * ScanCodesToReport ( uint32_t leftFingers,  uint32_t leftThumbs,
       if (keyMask & matricesDelta[matrixCounter]) {
 	if (keyMask & matrices[matrixCounter]) { // making key
 	  enum KeyNum_t keyNum = ScanCodeToKeyNum( activeLayers, keyCounter, matrixCounter );
-	  making[matrixCounter * 32 + keyCounter] = keyNum;
-	  if ( (keyNum < KB_Layer00Enable) && (keyNum != KB_Transparent) )
-	    ((uint8_t *)nextReport)[(keyNum - KB_LeftControl ) >> 3] |= 1 << ((keyNum - KB_LeftControl) & 0x7 ); } 
+	  making[matrixCounter * 32 + keyCounter] = keyNum; }
 	else { // breaking key
-	  enum KeyNum_t keyNum = making[matrixCounter * 32 + keyCounter];
-	  making[matrixCounter * 32 + keyCounter] = KB_Transparent;
-	  if ( (keyNum < KB_Layer00Enable) && (keyNum != KB_Transparent) )
-	    ((uint8_t *)nextReport)[(keyNum - KB_LeftControl ) >> 3] &= ~(1 << ((keyNum - KB_LeftControl) & 0x7 )); } }
+	  making[matrixCounter * 32 + keyCounter] = KB_Transparent; } }
+
+  // making array -> report
+  for( keyCounter = 0; keyCounter < 32 * 4; ++keyCounter){
+    enum KeyNum_t keyNum = making[ keyCounter ];
+    if ( (keyNum < KB_Layer00Enable) && (keyNum != KB_Transparent) )
+      ((uint8_t *)nextReport)[(keyNum - KB_LeftControl ) >> 3] |= 1 << ((keyNum - KB_LeftControl) & 0x7 ); }
+
   currentReport = (currentReport + 1) % NumReports;
   for( matrixCounter = 0; matrixCounter < 4; ++matrixCounter) 
     oldMatrices[matrixCounter] = matrices[matrixCounter];
