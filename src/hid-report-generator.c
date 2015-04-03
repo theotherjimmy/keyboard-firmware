@@ -7,10 +7,10 @@
 #define NumReports (2)
 
 inputReport_t reportBuffer[NumReports];
-uint8_t currentReport;
-uint32_t activeLayers;
-uint32_t oldMatrices[4] = {0, 0, 0, 0};
-enum KeyNum_t making[4 * 32] = { [0] = KB_Transparent, };
+static uint8_t currentReport;
+static uint32_t activeLayers;
+static uint32_t oldMatrices[4] = {0, 0, 0, 0};
+static enum KeyNum_t making[4 * 32] = { [0] = KB_Transparent, };
 
 void initReportGernerator ( void ) {
   int reportCounter, byteCounter;
@@ -18,8 +18,7 @@ void initReportGernerator ( void ) {
     for( byteCounter = 0; byteCounter < BytesPerReport; ++byteCounter )
       ( ( uint8_t *) &reportBuffer[ reportCounter ])[ byteCounter ] = 0;
   activeLayers = 1;
-  currentReport = 0;
-}
+  currentReport = 0; }
 
 enum KeyNum_t ScanCodeToKeyNum ( uint32_t activeLayers, uint32_t scanCode, uint32_t matrix ) {
   int8_t currentLayer;
@@ -27,8 +26,7 @@ enum KeyNum_t ScanCodeToKeyNum ( uint32_t activeLayers, uint32_t scanCode, uint3
   for( currentLayer = NumLayers - 1; currentLayer >= 0; --currentLayer, layerMask >>= 1 )
     if ( ( activeLayers & layerMask ) && ( layers[currentLayer][matrix][scanCode] != KB_Transparent ) )
       return layers[currentLayer][matrix][scanCode];
-  return KB_Transparent;
-}
+  return KB_Transparent; }
 
 // updates the keyboard's state from the 4 scanned matrices.
 // only one Report is valid at a time, and that report's index is always currentReport.
@@ -81,9 +79,7 @@ inputReport_t * ScanCodesToReport ( uint32_t leftFingers,  uint32_t leftThumbs,
   currentReport = (currentReport + 1) % NumReports;
   for( matrixCounter = 0; matrixCounter < 4; ++matrixCounter) 
     oldMatrices[matrixCounter] = matrices[matrixCounter];
-  return GetCurrentReport( );
-}
+  return GetCurrentReport( ); }
 
 inputReport_t * GetCurrentReport ( void ) {
-  return &reportBuffer[ currentReport ];
-}
+  return &reportBuffer[ currentReport ]; }
