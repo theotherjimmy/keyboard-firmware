@@ -11,13 +11,13 @@ enum KeyNum_t layers[NumLayers][4][32] =
 		{ KB_Y, KB_U, KB_I, KB_O, KB_P,
 		  KB_H, KB_J, KB_K, KB_L, KB_SemicolonAndColon,
 		  KB_N, KB_M, KB_CommaAndLessThanSign, KB_PeriodAndGreaterThanSign, KB_SlashAndQuestionMark },
-		{ KB_Layer01Enable, KB_KeyboardDelete, KB_KeyboardEscape, KB_RightAlt, KB_KeyboardReturn, KB_RightControl, }, 
+		{ KB_Layer01Enable, KB_KeyboardDelete, KB_KeyboardEscape, KB_RightAlt, KB_KeyboardReturn, KB_ApostropheAndQuotationMark, },
 	},
 	// layer 1
 	{
 		{ KB_Transparent, KB_Transparent, KB_Transparent, KB_HyphenAndUnderscore, KB_LeftArrow,
-		  KB_Digit1AndExclamationMark,  KB_Digit3AndHash ,  KB_Digit5AndPercent , KB_Digit7AndAmpersand , KB_Digit9AndLeftParenthesis , 
-		  KB_Transparent, KB_Transparent, KB_LeftSquareBracketAndLeftBrace, KB_ApostropheAndQuotationMark, KB_RightArrow, },
+		  KB_Digit1AndExclamationMark,  KB_Digit3AndHash ,  KB_Digit5AndPercent , KB_Digit7AndAmpersand , KB_Digit9AndLeftParenthesis ,
+		  KB_Transparent, KB_Transparent, KB_LeftSquareBracketAndLeftBrace, KB_GraveAndTilde, KB_RightArrow, },
 		{ KB_Transparent, KB_Transparent, KB_Transparent, KB_Transparent, KB_Transparent, KB_Transparent, },
 		{ KB_UpArrow, KB_EqualsAndPlus, KB_Transparent, KB_Transparent, KB_Transparent,
 		  KB_Digit0AndRightParenthesis, KB_Digit2AndAtSign, KB_Digit4AndDollar, KB_Digit6AndCaret, KB_Digit8AndAsterisk,
