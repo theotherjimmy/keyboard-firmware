@@ -14,67 +14,35 @@
 #include "matrix-driver.h"
 #include "hid-report-generator.h"
 
-//*****************************************************************************
-//
-// The languages supported by this device.
-//
-//*****************************************************************************
 const uint8_t LangDescriptor[] = {
-	4,
-	USB_DTYPE_STRING,
-	USBShort(USB_LANG_EN_US)
+        4,
+        USB_DTYPE_STRING,
+        USBShort(USB_LANG_EN_US)
 };
 
-//*****************************************************************************
-//
-// The manufacturer string.
-//
-//*****************************************************************************
 const uint8_t ManufacturerString[] = {
-	(17 + 1) * 2,
-	USB_DTYPE_STRING,
-	'T', 0, 'e', 0, 'x', 0, 'a', 0, 's', 0, ' ', 0, 'I', 0, 'n', 0, 's', 0,
-	't', 0, 'r', 0, 'u', 0, 'm', 0, 'e', 0, 'n', 0, 't', 0, 's', 0,
+        (17 + 1) * 2, USB_DTYPE_STRING
+        , 'T', 0, 'e', 0, 'x', 0, 'a', 0, 's', 0, ' ', 0, 'I', 0, 'n', 0, 's', 0
+        , 't', 0, 'r', 0, 'u', 0, 'm', 0, 'e', 0, 'n', 0, 't', 0, 's', 0,
 };
 
-//*****************************************************************************
-//
-// The product string.
-//
-//*****************************************************************************
 const uint8_t ProductString[] = {
-	(13 + 1) * 2,
-	USB_DTYPE_STRING,
-	'K', 0, 'B', 0, 'D', 0, 'F', 0, 'W', 0, ' ', 0, 'E', 0, 'x', 0, 'a', 0,
-	'm', 0, 'p', 0, 'l', 0, 'e', 0
+        (13 + 1) * 2, USB_DTYPE_STRING
+        , 'K', 0, 'B', 0, 'D', 0, 'F', 0, 'W', 0, ' ', 0, 'E', 0, 'x', 0, 'a', 0
+        , 'm', 0, 'p', 0, 'l', 0, 'e', 0
 };
 
-//*****************************************************************************
-//
-// The serial number string.
-//
-//*****************************************************************************
 const uint8_t SerialNumberString[] = {
-	(8 + 1) * 2,
-	USB_DTYPE_STRING,
-	'1', 0, '2', 0, '3', 0, '4', 0, '5', 0, '6', 0, '7', 0, '8', 0
+        (8 + 1) * 2, USB_DTYPE_STRING
+        , '1', 0, '2', 0, '3', 0, '4', 0, '5', 0, '6', 0, '7', 0, '8', 0
 };
 
-//*****************************************************************************
-//
-// The descriptor string table.
-//
-//*****************************************************************************
 const uint8_t * const StringDescriptors[] = {
-	LangDescriptor,
-	ManufacturerString,
-	ProductString,
-	SerialNumberString,
+        LangDescriptor, ManufacturerString, ProductString, SerialNumberString
 };
 
 #define NUM_STRING_DESCRIPTORS (sizeof(StringDescriptors) / sizeof(uint8_t *))
 
-// HID device configuration descrpitor
 
 static uint8_t KeybDescriptor[] = {
 	9,                          // Size of the configuration descriptor.
@@ -87,14 +55,9 @@ static uint8_t KeybDescriptor[] = {
 	250,                        // The maximum power in 2mA increments.
 };
 
-// associated section
-
 static const tConfigSection HIDConfigSection = {
-	sizeof(KeybDescriptor),
-	KeybDescriptor
+        sizeof(KeybDescriptor), KeybDescriptor
 };
-
-// HID interface descriptor
 
 static uint8_t HIDInterface[HIDINTERFACE_SIZE] = {
 	9,                          // Size of the interface descriptor.
@@ -108,11 +71,9 @@ static uint8_t HIDInterface[HIDINTERFACE_SIZE] = {
 	4,                          // The string index for this interface.
 };
 
-// associated section
 
 static const tConfigSection HIDInterfaceSection = {
-	sizeof(HIDInterface),
-	HIDInterface
+        sizeof(HIDInterface), HIDInterface
 };
 
 // interrupt endpiont descriptors
@@ -130,8 +91,7 @@ static const uint8_t HIDInEndpoint[HIDINENDPOINT_SIZE] = {
 };
 
 static const tConfigSection HIDInEndpointSection = {
-	sizeof(HIDInEndpoint),
-	HIDInEndpoint
+        sizeof(HIDInEndpoint), HIDInEndpoint
 };
 
 static const uint8_t HIDOutEndpoint[HIDOUTENDPOINT_SIZE] = {
@@ -147,8 +107,7 @@ static const uint8_t HIDOutEndpoint[HIDOUTENDPOINT_SIZE] = {
 };
 
 static const tConfigSection HIDOutEndpointSection = {
-	sizeof(HIDOutEndpoint),
-	HIDOutEndpoint
+        sizeof(HIDOutEndpoint), HIDOutEndpoint
 };
 
 // report descriptor
@@ -170,18 +129,14 @@ static const tHIDDescriptor KeybHIDDescriptor = {
 // associated section
 
 static tConfigSection HIDDescriptorSection = {
-	sizeof(KeybHIDDescriptor),
-	(const uint8_t *) &KeybHIDDescriptor
+        sizeof(KeybHIDDescriptor), (const uint8_t *) &KeybHIDDescriptor
 };
 
 // section pointers
 
 static const tConfigSection *HIDSections[] = {
-	&HIDConfigSection,
-	&HIDInterfaceSection,
-	&HIDDescriptorSection,
-	&HIDInEndpointSection,
-	&HIDOutEndpointSection
+        &HIDConfigSection, &HIDInterfaceSection, &HIDDescriptorSection
+        , &HIDInEndpointSection, &HIDOutEndpointSection
 };
 
 #define NUM_HID_SECTIONS        ((sizeof(HIDSections) / sizeof(HIDSections[0])) - 1)
@@ -189,132 +144,119 @@ static const tConfigSection *HIDSections[] = {
 // the configuration that we support
 
 static tConfigHeader HIDConfigHeader = {
-	NUM_HID_SECTIONS,
-	HIDSections
+        NUM_HID_SECTIONS, HIDSections
 };
 
 // the list of all of the configurations we support
 
 static const tConfigHeader * const HIDConfigDescriptors[] = {
-	&HIDConfigHeader
+        &HIDConfigHeader
 };
 
 // descriptor table
 
 static const uint8_t * const KeybClassDescriptors[] = {
-	ReportDescriptor
+        ReportDescriptor
 };
 
 typedef struct  {
-	bool USBConfigured;
-	// the following two components are needed by usblib
-	tHIDReportIdle ReportIdle;
-	tUSBDHIDDevice HIDDevice;
+        bool USBConfigured;
+                                // the following two components are needed by usblib
+        tHIDReportIdle ReportIdle;
+        tUSBDHIDDevice HIDDevice;
 } USBHIDKeyboardDevice_t;
 
 USBHIDKeyboardDevice_t Device;
 
 static uint8_t buff[1 << 5];
 
-static uint32_t HIDKeyoardRxHandler (void *KeyboardDevice, uint32_t Event,
-				     uint32_t MsgValue, void * MsgData) {
-        /* otherwise unused */
+static uint32_t HIDKeyoardRxHandler (void *KeyboardDevice, uint32_t Event
+                                     , uint32_t MsgValue, void * MsgData) {
+/* otherwise unused */
         MsgValue = MsgValue;
-	switch (Event) {
-	case USB_EVENT_CONNECTED: {
-		((USBHIDKeyboardDevice_t *)KeyboardDevice)->USBConfigured = true;
-		break; }
-	case USB_EVENT_DISCONNECTED: {
-		((USBHIDKeyboardDevice_t *)KeyboardDevice)->USBConfigured = false;
-		break; }
-	case USBD_HID_EVENT_GET_REPORT: 
-	case USBD_HID_EVENT_IDLE_TIMEOUT: {
-		*(inputReport_t **)MsgData = GetCurrentReport();
-		return sizeof( inputReport_t ) / sizeof( uint8_t );
-	}
-	case USBD_HID_EVENT_GET_REPORT_BUFFER: {
-		if  ((uint32_t)MsgData < 1 << 5)
-			return (uint32_t) &buff[0];
-		else
-			return 0; }
-		// we only support the report protocol. Therefore, if asked, we are currently using the report protocol
-	case USBD_HID_EVENT_GET_PROTOCOL: { return USB_HID_PROTOCOL_REPORT; }
-		// cannot happen, we do not define any input reports, and we stall all attepmts to recieve them.
-	case USBD_HID_EVENT_REPORT_SENT:  { 
-		return 0; }
-	case USB_EVENT_SUSPEND: {
-		set_pin(PIN_F2, true);
-		break; }
-	case USB_EVENT_ERROR:  
-	case USBD_HID_EVENT_SET_REPORT: 
-	case USBD_HID_EVENT_SET_PROTOCOL: 
-	case USB_EVENT_RESUME:
-	default : {
-		set_pin(PIN_F3, true);
-		break; }
-	}
-	return 0;
+        switch (Event) {
+        case USB_EVENT_CONNECTED: {
+                ((USBHIDKeyboardDevice_t *)KeyboardDevice)->USBConfigured = true;
+                break; }
+        case USB_EVENT_DISCONNECTED: {
+                ((USBHIDKeyboardDevice_t *)KeyboardDevice)->USBConfigured = false;
+                break; }
+        case USBD_HID_EVENT_GET_REPORT:
+        case USBD_HID_EVENT_IDLE_TIMEOUT: {
+                *(inputReport_t **)MsgData = GetCurrentReport();
+                return sizeof( inputReport_t ) / sizeof( uint8_t );
+        }
+        case USBD_HID_EVENT_GET_REPORT_BUFFER: {
+                if  ((uint32_t)MsgData < 1 << 5)
+                        return (uint32_t) &buff[0];
+                else
+                        return 0; }
+                                // we only support the report protocol. Therefore, if asked, we are currently using the report protocol
+        case USBD_HID_EVENT_GET_PROTOCOL: { return USB_HID_PROTOCOL_REPORT; }
+                                // cannot happen, we do not define any input reports, and we stall all attepmts to recieve them.
+
+        case USBD_HID_EVENT_REPORT_SENT:  {
+                return 0; }
+        case USB_EVENT_SUSPEND: {
+                set_pin(PIN_F2, true);
+                break; }
+        case USB_EVENT_ERROR:
+        case USBD_HID_EVENT_SET_REPORT:
+        case USBD_HID_EVENT_SET_PROTOCOL:
+        case USB_EVENT_RESUME:
+        default : {
+                set_pin(PIN_F3, true);
+                break; }
+        }
+        return 0;
 }
 
 static uint32_t HIDKeyoardTxHandler (void *KeyboardDevice, uint32_t Event, uint32_t MsgValue, void * MsgData) {
-        /* otherwise unused */
+/* otherwise unused */
         KeyboardDevice = KeyboardDevice;
         Event = Event;
         MsgValue = MsgValue;
         MsgData = MsgData;
-	return 0;
+        return 0;
 }
 
 bool SendButtons ( void ) {
-	uint32_t count;
-	if(USBDHIDTxPacketAvailable((void *)&Device.HIDDevice))
-	{
-		//
-		// Send the report to the host.
-		//
-		count = USBDHIDReportWrite((void *)&Device.HIDDevice,
-					   (uint8_t *)GetCurrentReport(),
-					   sizeof( inputReport_t ) / sizeof( uint8_t ),
-					   true);
-		
-		//
-		// Did we schedule a packet for transmission correctly?
-		//
-		if(count <= 0)
-		{
-			//
-			// No - report the error to the caller.
-			//
-			return false;
-		}
-		else return true;
-	}
-	return false ;
+        uint32_t count;
+        if(USBDHIDTxPacketAvailable((void *)&Device.HIDDevice)) {
+                count = USBDHIDReportWrite((void *)&Device.HIDDevice
+                                           , (uint8_t *)GetCurrentReport()
+                                           , sizeof( inputReport_t ) / sizeof( uint8_t )
+                                           , true);
+                if(count <= 0) return false;
+                else           return true;
+        }
+        return false;
 }
+
 bool USBDHIDKeyboardInit(uint32_t index) {
-	tUSBDHIDDevice *HIDDevice;
-	bool compRet, initRet;
-	initReportGernerator( );
-	HIDDevice = &Device.HIDDevice;
-	HIDDevice->ui16PID = 0x1CBE;
-	HIDDevice->ui16VID = 0x000D;
-	HIDDevice->ui16MaxPowermA = 500;
-	HIDDevice->ui8PwrAttributes = 0;
-	HIDDevice->ui8Subclass = USB_HID_SCLASS_NONE;
-	HIDDevice->ui8Protocol = USB_HID_PROTOCOL_KEYB;
-	HIDDevice->ui8NumInputReports = 1;
-	HIDDevice->pfnRxCallback = HIDKeyoardRxHandler;
-	HIDDevice->pvRxCBData = (void *)&Device;
-	HIDDevice->pfnTxCallback = HIDKeyoardTxHandler; 
-	HIDDevice->pvTxCBData = (void *)&Device;
-	HIDDevice->psHIDDescriptor = &KeybHIDDescriptor;
-	HIDDevice->ppui8ClassDescriptors = KeybClassDescriptors;
-	HIDDevice->ppui8StringDescriptors = &StringDescriptors[ 0 ];
-	HIDDevice->ui32NumStringDescriptors = NUM_STRING_DESCRIPTORS ;
-	HIDDevice->ppsConfigDescriptor = HIDConfigDescriptors;
-	HIDDevice->psReportIdle = &Device.ReportIdle;
-	Device.ReportIdle.ui8Duration4mS = 125;
-	compRet = USBDHIDCompositeInit( index, HIDDevice, 0 );
-	initRet = USBDHIDInit( index, HIDDevice );
-	return compRet && initRet;
+        tUSBDHIDDevice *HIDDevice;
+        bool compRet, initRet;
+        initReportGernerator( );
+        HIDDevice = &Device.HIDDevice;
+        HIDDevice->ui16PID = 0x1CBE;
+        HIDDevice->ui16VID = 0x000D;
+        HIDDevice->ui16MaxPowermA = 500;
+        HIDDevice->ui8PwrAttributes = 0;
+        HIDDevice->ui8Subclass = USB_HID_SCLASS_NONE;
+        HIDDevice->ui8Protocol = USB_HID_PROTOCOL_KEYB;
+        HIDDevice->ui8NumInputReports = 1;
+        HIDDevice->pfnRxCallback = HIDKeyoardRxHandler;
+        HIDDevice->pvRxCBData = (void *)&Device;
+        HIDDevice->pfnTxCallback = HIDKeyoardTxHandler;
+        HIDDevice->pvTxCBData = (void *)&Device;
+        HIDDevice->psHIDDescriptor = &KeybHIDDescriptor;
+        HIDDevice->ppui8ClassDescriptors = KeybClassDescriptors;
+        HIDDevice->ppui8StringDescriptors = &StringDescriptors[ 0 ];
+        HIDDevice->ui32NumStringDescriptors = NUM_STRING_DESCRIPTORS ;
+        HIDDevice->ppsConfigDescriptor = HIDConfigDescriptors;
+        HIDDevice->psReportIdle = &Device.ReportIdle;
+        Device.ReportIdle.ui8Duration4mS = 125;
+        compRet = USBDHIDCompositeInit( index, HIDDevice, 0 );
+        initRet = USBDHIDInit( index, HIDDevice );
+        return compRet && initRet;
 }
