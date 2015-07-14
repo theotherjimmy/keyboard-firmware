@@ -218,6 +218,8 @@ static uint8_t buff[1 << 5];
 
 static uint32_t HIDKeyoardRxHandler (void *KeyboardDevice, uint32_t Event,
 				     uint32_t MsgValue, void * MsgData) {
+        /* otherwise unused */
+        MsgValue = MsgValue;
 	switch (Event) {
 	case USB_EVENT_CONNECTED: {
 		((USBHIDKeyboardDevice_t *)KeyboardDevice)->USBConfigured = true;
@@ -255,6 +257,11 @@ static uint32_t HIDKeyoardRxHandler (void *KeyboardDevice, uint32_t Event,
 }
 
 static uint32_t HIDKeyoardTxHandler (void *KeyboardDevice, uint32_t Event, uint32_t MsgValue, void * MsgData) {
+        /* otherwise unused */
+        KeyboardDevice = KeyboardDevice;
+        Event = Event;
+        MsgValue = MsgValue;
+        MsgData = MsgData;
 	return 0;
 }
 

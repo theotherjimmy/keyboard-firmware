@@ -13,7 +13,7 @@ static uint32_t oldMatrices[4] = {0, 0, 0, 0};
 static enum KeyNum_t making[4 * 32] = { [0] = KB_Transparent, };
 
 void initReportGernerator ( void ) {
-	int reportCounter, byteCounter;
+	unsigned int reportCounter, byteCounter;
 	for( reportCounter = 0; reportCounter < NumReports; ++reportCounter )
 		for( byteCounter = 0; byteCounter < BytesPerReport; ++byteCounter )
 			( ( uint8_t *) &reportBuffer[ reportCounter ])[ byteCounter ] = 0;

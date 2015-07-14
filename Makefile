@@ -74,6 +74,7 @@ CFLAGS     += ${FLAGS}
 # C only Flags
 CFLAGS     += -MD
 CFLAGS     += -Wall
+CFLAGS     += -Wextra
 CFLAGS     += -Werror
 CFLAGS     += -Wno-deprecated-declarations
 CFLAGS     += -pedantic
@@ -82,6 +83,8 @@ CFLAGS     += -Dgcc
 CFLAGS     += -DTARGET_IS_BLIZZARD_RA1
 CFLAGS     += -std=gnu99
 CFLAGS     += -g
+CFLAGS     += -gdwarf-2
+CFLAGS     += -g3
 CFLAGS     += -ffunction-sections
 CFLAGS     += -fdata-sections
 CFLAGS     += -fsingle-precision-constant
@@ -91,6 +94,7 @@ CFLAGS     += -O3
 LIBS	   += usb
 LIBS       += driver
 LIBS	   += m
+LIBS	   += c
 LIBS	   += gcc
 
 LDFLAGS    += -g
@@ -117,6 +121,8 @@ $(eval $(shell	$(MKDIR) bin))
 OBJECTS    := $(patsubst src/%.c, bin/%.o, $(C_SOURCES))
 OBJECTS    += $(patsubst src/%.as, bin/%.o, $(AS_SOURCES))
 ASMS       := $(patsubst src/%.c, bin/%.s, $(C_SOURCES))
+
+all:
 
 # Include dependency info, if we have it
 -include ${OBJECTS:.o=.d}

@@ -32,7 +32,6 @@ int main( void ) {
 	keymatrix_t * to_scan_thumb_left;
 	keymatrix_t * to_scan_thumb_right;
 	init_hw( );
-	rand();
 	to_scan_left = init_matrix( &left_columns[0], 3, &left_rows[0], 5 );
 	to_scan_right = init_matrix( &right_columns[0], 3, &right_rows[0], 5 );
 	to_scan_thumb_left = init_matrix( &left_thumb_row[0], 6, &left_thumb_column[0], 1 );
