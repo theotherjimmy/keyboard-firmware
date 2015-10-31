@@ -168,13 +168,15 @@ clean:
 	${Debug}echo "target remote | openocd -c \"source [find board/ek-lm4f120xl.cfg]\" -c \"gdb_port pipe; log_output openocd.log\""> $@
 	${Debug}echo "monitor reset halt" >> $@
 	${Debug}echo "load" >> $@
-	${Debug}echo "monitor reset halt" >> $@
 
-debug: bin/${TARGET}.out .gdb-script
+-gdb: bin/${TARGET}.out .gdb-script
 	${Debug}${GDB} $< -x .gdb-script ${GDBFLAGS}
 
-flash: debug
-flash: GDBFLAGS += -batch
+debug: -gdb
+debug: GDBFLAGS += -ex "monitor reset halt"
+
+flash: -gdb
+flash: GDBFLAGS += -ex "monitor reset run" -batch
 
 uart: flash
 	${Debug}${UART} /dev/lm4f 115200
